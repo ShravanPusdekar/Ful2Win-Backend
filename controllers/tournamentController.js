@@ -180,11 +180,11 @@ const getTournaments = async (req, res) => {
 
 // Get tournament by ID
 const getTournamentById = async (req, res) => {
+  const { id } = req.params;
+  console.log(id);
   try {
     const tournament = await Tournament.findById(req.params.id)
-      .populate('game', 'name displayName assets.thumbnail')
-      .populate('currentPlayers', 'username avatar')
-      .populate('winners.playerId', 'username avatar');
+    
 
     if (!tournament) {
       return res.status(404).json({
