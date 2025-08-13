@@ -522,6 +522,4 @@ userSchema.methods.getSignedJwtToken = function () {
     { expiresIn: process.env.JWT_EXPIRE || '30d' }
   );
 };
-
-const User = mongoose.model('User', userSchema);
-export default User;
+export default mongoose.models.User || mongoose.model('User', userSchema);

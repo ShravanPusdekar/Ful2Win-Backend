@@ -1037,15 +1037,38 @@ const getUserPosts = async (req, res) => {
     handleError(res, error, 'Error fetching user posts');
   }
 };
+const getAllUsers = async (req, res) => {
+  try {
+    const users = await User.find()
+      .select('username profilePicture _id') // Only required fields
+      .lean(); // Returns plain JS object, faster
 
-export { 
-  registerUser, 
-  loginUser, 
+    if (!users || users.length === 0) {
+      return res.status(404).json({ message: 'No users found' });
+    }
+
+    res.json({
+      success: true,
+      data: users
+    });
+
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    res.status(500).json({ message: 'Server Error' });
+  }
+};
+
+ 
+
+export {
+  registerUser,
+  loginUser,
   logoutUser,
   getProfilePicture,
   forgotPassword,
   resetPassword,
   checkUsername,
+  getAllUsers,
   getUserProfile,
   getCurrentUserProfile,
   updateUserProfile,
