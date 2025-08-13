@@ -10,6 +10,7 @@ import {
   getCurrentUserProfile,
   updateUserProfile,
   getUsers,
+  getAllUsers,
   getUserPosts,
   getProfilePicture
 } from '../controllers/userController.js';
@@ -24,6 +25,7 @@ const router = express.Router();
 router.post('/register', registerUser);
 router.post('/login', loginUser);
 router.post('/logout', logoutUser);
+router.get('/all', getAllUsers);
 router.get('/check-username/:username', checkUsername);
 router.get('/:userId/posts', getUserPosts);
 
