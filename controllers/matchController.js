@@ -1,5 +1,5 @@
 import GameMatch from "../models/matchModel.js";
-import User from "../models/user.js";
+import User from "../models/User.js";
 
 const registerMatch = async (data) => {
   try {
