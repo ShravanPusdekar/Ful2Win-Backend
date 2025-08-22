@@ -11,7 +11,8 @@ const GAME_TYPES = [
   'Racing',
   'Action',
   'Adventure',
-  'Other'
+  'Other',
+  'Unlimited'
 ];
 
 const GAME_MODES = [
