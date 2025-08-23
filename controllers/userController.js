@@ -1041,7 +1041,7 @@ const getAllUsers = async (req, res) => {
   try {
     const users = await User.find()
     // coins but in desending order
-      .select('username profilePicture _id coins')
+      .select('username profilePicture _id coins fullName')
       .sort({ coins: -1 })
       .lean();
 
