@@ -15,17 +15,17 @@ import challengeRoutes from './routes/challengeRoutes.js';
 
 
 // --- Security middleware suggestions (uncomment to enable in production) ---
-// import helmet from 'helmet';
-// import rateLimit from 'express-rate-limit';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
 
 // --- Uncomment the following lines for enhanced security ---
-// app.use(helmet());
-// app.use(rateLimit({
-//   windowMs: 15 * 60 * 1000, // 15 minutes
-//   max: 100, // limit each IP to 100 requests per windowMs
-//   standardHeaders: true,
-//   legacyHeaders: false,
-// }));
+app.use(helmet());
+app.use(rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // limit each IP to 100 requests per windowMs
+  standardHeaders: true,
+  legacyHeaders: false,
+}));
 
 // Routes
 import messageRoutes from './routes/messageRoutes.js';
@@ -68,7 +68,7 @@ app.use((req, res, next) => {
     return next(); // skip express.json & urlencoded
   }
   console.log(`${req.method} ${req.originalUrl}`, {
-    
+
     body: req.body,
     headers: req.headers,
     query: req.query,
@@ -78,7 +78,7 @@ app.use((req, res, next) => {
 });
 
 // Body parsing middleware with increased limits and strict mode false
-app.use(express.json({ 
+app.use(express.json({
   limit: '50mb',
   strict: false // Allow non-array/object JSON
 }));
@@ -172,7 +172,7 @@ const corsOptions = {
     'X-Requested-With',
     'login',
     'blocked',
-     'x-request-id', 
+    'x-request-id',
     'x-access-token', // Add any other custom headers you use
     'x-custom-header'
   ],
@@ -191,9 +191,9 @@ const corsOptions = {
         return regex.test(origin);
       }
       // Check exact match or subdomain match
-      return origin === allowedOrigin || 
-             origin === `https://${allowedOrigin}` || 
-             origin === `http://${allowedOrigin}`;
+      return origin === allowedOrigin ||
+        origin === `https://${allowedOrigin}` ||
+        origin === `http://${allowedOrigin}`;
     });
 
     if (originAllowed) {
@@ -407,7 +407,7 @@ const startServer = async () => {
     await connectCloudinary();
     console.log('✅ Cloudinary connected');
 
-    const PORT =  5000;
+    const PORT = 5000;
     server.listen(PORT, '0.0.0.0', () => {
       console.log('========================================');
       console.log(`🚀 Server running on port ${PORT} in ${process.env.NODE_ENV || 'production'} mode`);
