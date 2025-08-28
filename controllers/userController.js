@@ -976,7 +976,7 @@ const logoutUser = (req, res) => {
     // Clear the token from client-side
     // In a browser environment, this would be handled by removing the token from localStorage
     // This endpoint is here for API consistency and to invalidate tokens if needed in the future
-    
+    console.log("user logged out");
     res.status(200).json({
       success: true,
       message: 'Successfully logged out'
@@ -1040,8 +1040,10 @@ const getUserPosts = async (req, res) => {
 const getAllUsers = async (req, res) => {
   try {
     const users = await User.find()
-      .select('username profilePicture _id') // Only required fields
-      .lean(); // Returns plain JS object, faster
+    // coins but in desending order
+      .select('username profilePicture _id coins fullName')
+      .sort({ coins: -1 })
+      .lean();
 
     if (!users || users.length === 0) {
       return res.status(404).json({ message: 'No users found' });

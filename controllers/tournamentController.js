@@ -496,12 +496,24 @@ const updateStatus = async (req, res) => {
     res.status(500).json({ success: false, message: 'Update failed', error: err.message });
   }
 };
-  
+
+const getTournamentsByGame = async (req, res) => {
+  const { gameId } = req.params;
+  try {
+    const tournaments = await Tournament.find({ game: gameId })
+      .sort({ status: 1, startDate: 1 }); // Sort by status (live, upcoming, completed) and then by start date
+    res.json({ success: true, data: tournaments });
+  } catch (error) {
+    console.error('Error fetching tournaments by game:', error);
+    res.status(500).json({ success: false, message: 'Failed to fetch tournaments', error: error.message });
+  }
+};
 
 export {
   updateStatus,
   createTournament,
   getTournaments,
+  getTournamentsByGame,
   getTournamentById,
   updateTournament,
   deleteTournament,

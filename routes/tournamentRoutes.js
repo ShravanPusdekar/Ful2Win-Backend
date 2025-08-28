@@ -10,7 +10,8 @@ import {
   deleteTournament,
   registerPlayer,
   getTournamentLeaderboard,
-  updateStatus
+  updateStatus,
+  getTournamentsByGame
 } from '../controllers/tournamentController.js';
 import { getCloudinaryStatus } from '../config/cloudinary.js';
 
@@ -95,7 +96,7 @@ router.put('/:id',
 
 // Delete tournament
 router.delete('/:id', deleteTournament);
-
+router.get('/game/:gameId', getTournamentsByGame);
 // Register player for tournament
 router.post('/:tournamentId/register', registerPlayer);
 router.put('/:tournamentId/status', updateStatus);
