@@ -34,7 +34,7 @@ const matchSchema = new mongoose.Schema({
   roomId: {
     type: String,
     required: true,
-    unique: true,
+   // unique: true,
     trim: true,
     uppercase: true
   },
@@ -86,7 +86,7 @@ const matchSchema = new mongoose.Schema({
 });
 
 // Indexes for faster queries
-matchSchema.index({ tournamentId: 1, roundNumber: 1, matchNumber: 1 }, { unique: true, sparse: true });
+//matchSchema.index({ tournamentId: 1, roundNumber: 1, matchNumber: 1 }, { unique: true, sparse: true });
 
 // Virtual for checking if match is full
 matchSchema.virtual('isFull').get(function() {
