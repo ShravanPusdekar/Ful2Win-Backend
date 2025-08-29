@@ -252,7 +252,7 @@ app.use(cors(corsOptions));
 // ================================
 // Security headers middleware (uncomment to enable in production)
 app.use(helmet());
-
+app.set('trust proxy', 1); // Trust first proxy if behind a proxy (e.g., Heroku, Nginx)
 // Rate limiting middleware (uncomment to enable in production)
 app.use(rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
