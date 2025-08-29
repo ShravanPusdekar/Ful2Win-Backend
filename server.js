@@ -18,15 +18,6 @@ import challengeRoutes from './routes/challengeRoutes.js';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 
-// --- Uncomment the following lines for enhanced security ---
-app.use(helmet());
-app.use(rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
-  standardHeaders: true,
-  legacyHeaders: false,
-}));
-
 // Routes
 import messageRoutes from './routes/messageRoutes.js';
 import postRoutes from './routes/postRoutes.js';
@@ -255,6 +246,20 @@ app.options('*', cors(corsOptions));
 
 // Apply CORS to all routes
 app.use(cors(corsOptions));
+
+// ================================
+// ✅ SECURITY MIDDLEWARE
+// ================================
+// Security headers middleware (uncomment to enable in production)
+app.use(helmet());
+
+// Rate limiting middleware (uncomment to enable in production)
+app.use(rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // limit each IP to 100 requests per windowMs
+  standardHeaders: true,
+  legacyHeaders: false,
+}));
 
 // Log every incoming request for debugging
 app.use((req, res, next) => {
