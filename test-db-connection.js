@@ -24,7 +24,7 @@ async function testConnection() {
     
     // Check if our database exists
     const dbExists = collections.databases.some(db => db.name === 'test');
-    console.log('Database "ful2win" exists:', dbExists);
+    console.log('Database db.name exists:', dbExists);
     
     // Close the connection
     await mongoose.connection.close();
