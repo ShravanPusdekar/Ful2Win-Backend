@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 
 async function testConnection() {
   try {
-    const mongoUri = 'mongodb://localhost:27017/ful2win';
+    const mongoUri = 'mongodb+srv://ful2win:ful2win@fu2win-db.psigl9q.mongodb.net/?retryWrites=true&w=majority&appName=Fu2Win-DB';
     console.log('Testing MongoDB connection to:', mongoUri);
     
     // Set mongoose debug mode
