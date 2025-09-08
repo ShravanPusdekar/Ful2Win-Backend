@@ -413,7 +413,7 @@ const startServer = async () => {
     console.log('✅ Cloudinary connected');
 
     const PORT = 5000;
-    server.listen(PORT, '127.0.0.1', () => {
+    server.listen(PORT, '0.0.0.0', () => {
       console.log('========================================');
       console.log(`🚀 Server running on port ${PORT} in ${process.env.NODE_ENV || 'production'} mode`);
       console.log('🌍 API Base URL:', `https://api.fulboost.fun`);
