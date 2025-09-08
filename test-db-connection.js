@@ -23,7 +23,7 @@ async function testConnection() {
     console.log('Available databases:', collections.databases.map(db => db.name));
     
     // Check if our database exists
-    const dbExists = collections.databases.some(db => db.name === 'ful2win');
+    const dbExists = collections.databases.some(db => db.name === 'test');
     console.log('Database "ful2win" exists:', dbExists);
     
     // Close the connection
