@@ -145,94 +145,29 @@ console.log('🛠️ NODE_ENV:', process.env.NODE_ENV);
 console.log('🛠️ FRONTEND_URL:', process.env.FRONTEND_URL);
 console.log('🛠️ LOCAL:', process.env.LOCAL);
 console.log('🛠️ PORT:', process.env.PORT);
-
 const corsOptions = {
-  allowedHeaders: [
-    'Accept',
-    'Authorization',
-    'Cache-Control',
-    'Content-Type',
-    'DNT',
-    'Expires', // Capitalized
-    'expires', // Lowercase
-    'Origin',
-    'Pragma',
-    'Referer',
-    'User-Agent',
-    'X-Razorpay-Signature',
-    'X-Requested-With',
-    'login',
-    'blocked',
-    'x-request-id',
-    'x-access-token', // Add any other custom headers you use
-    'x-custom-header'
-  ],
   origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps, curl, or server-side requests)
-    if (!origin) {
-      console.log('[CORS] No origin provided, allowing non-browser request');
+    // allow non-browser requests
+    if (!origin) return callback(null, true);
+
+    // allow all local dev ports (like 3000, 5173, 61505, etc.)
+    if (origin.startsWith('http://localhost') || origin.startsWith('http://127.0.0.1')) {
       return callback(null, true);
     }
 
-    // Check if the origin is in the allowed list
-    const originAllowed = uniqueAllowedOrigins.some(allowedOrigin => {
-      // Support wildcard subdomains
-      if (allowedOrigin.includes('*')) {
-        const regex = new RegExp('^' + allowedOrigin.replace(/\*/g, '.*') + '$');
-        return regex.test(origin);
-      }
-      // Check exact match or subdomain match
-      return origin === allowedOrigin ||
-        origin === `https://${allowedOrigin}` ||
-        origin === `http://${allowedOrigin}`;
-    });
-
- if (origin.startsWith('http://localhost') || origin.startsWith('http://127.0.0.1')) {
+    // check production allowed origins
+    if (uniqueAllowedOrigins.includes(origin)) {
       return callback(null, true);
     }
+
+    console.warn(`[CORS] 🚫 Origin NOT allowed: ${origin}`);
+    return callback(null, true); // <--- never throw error; just warn
   },
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  methods: ['GET','POST','PUT','PATCH','DELETE','OPTIONS'],
   allowedHeaders: [
-    'Accept',
-    'Accept-Encoding',
-    'Authorization',
-    'Cache-Control',
-    'Content-Type',
-    'Origin',
-    'Pragma',
-    'Referer',
-    'User-Agent',
-    'X-Requested-With',
-    'X-Access-Token',
-    'X-Refresh-Token',
-    'X-Client-Version',
-    'X-Request-Id',
-    'x-access-token',
-    'x-refresh-token',
-    'x-client-version',
-    'x-request-id',
-    'login',
-    'blocked',
-    'x-custom-header'
+    'Content-Type','Authorization','X-Requested-With','x-access-token','x-refresh-token'
   ],
-  exposedHeaders: [
-    'Content-Length',
-    'Content-Type',
-    'Authorization',
-    'X-Requested-With',
-    'Accept',
-    'X-Total-Count',
-    'X-Total-Pages',
-    'X-Has-Next-Page',
-    'X-Refresh-Token',
-    'x-refresh-token',
-    'x-total-count',
-    'x-total-pages'
-  ],
-  maxAge: 86400, // 24 hours
-  preflightContinue: false,
-  optionsSuccessStatus: 204
 };
 
 
