@@ -187,13 +187,8 @@ const corsOptions = {
         origin === `http://${allowedOrigin}`;
     });
 
-    if (originAllowed) {
-      console.log(`[CORS] ✅ Origin allowed: ${origin}`);
+ if (origin.startsWith('http://localhost') || origin.startsWith('http://127.0.0.1')) {
       return callback(null, true);
-    } else {
-      console.log(`[CORS] 🚫 Origin NOT allowed: ${origin}`);
-      console.log(`[CORS] Allowed origins:`, uniqueAllowedOrigins);
-      return callback(new Error(`Not allowed by CORS. Origin ${origin} not in allowed list.`), false);
     }
   },
   credentials: true,
