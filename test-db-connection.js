@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 
 async function testConnection() {
   try {
-    const mongoUri = 'mongodb://localhost:27017/ful2win';
+    const mongoUri = 'mongodb+srv://ful2win:ful2win@fu2win-db.psigl9q.mongodb.net/?retryWrites=true&w=majority&appName=Fu2Win-DB';
     console.log('Testing MongoDB connection to:', mongoUri);
     
     // Set mongoose debug mode
@@ -23,8 +23,8 @@ async function testConnection() {
     console.log('Available databases:', collections.databases.map(db => db.name));
     
     // Check if our database exists
-    const dbExists = collections.databases.some(db => db.name === 'ful2win');
-    console.log('Database "ful2win" exists:', dbExists);
+    const dbExists = collections.databases.some(db => db.name === 'test');
+    console.log('Database db.name exists:', dbExists);
     
     // Close the connection
     await mongoose.connection.close();

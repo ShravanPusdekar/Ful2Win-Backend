@@ -17,9 +17,6 @@ const gameMatchSchema = new mongoose.Schema({
   winner: { type: String, required: false }, // Optional field to store the winner's userId
 });
 
-// Ensure MongoDB creates the unique index
-gameMatchSchema.index({ roomId: 1 }, { unique: true });
-
 const GameMatch = mongoose.models.GameMatch || mongoose.model('GameMatch', gameMatchSchema);
 
 export default GameMatch;
