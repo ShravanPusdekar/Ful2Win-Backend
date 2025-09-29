@@ -317,7 +317,7 @@ const getUsersForChallenge = async (req, res) => {
 
     const users = await User.find(query)
       .select('fullName username profilePicture')
-      .limit(20)
+      
       .sort({ fullName: 1 });
 
     res.json({
