@@ -3,16 +3,30 @@ import AWS from "aws-sdk";
 import Otp from "../models/Otp.js";
 import crypto from "crypto";
 
-const sns = new AWS.SNS({
-  region: process.env.AWS_REGION,
+// Configure AWS with explicit settings
+AWS.config.update({
+  region: process.env.AWS_REGION || 'ap-south-1',
   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
   secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+});
+
+const sns = new AWS.SNS({
+  region: process.env.AWS_REGION || 'ap-south-1',
+  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+});
+
+// Debug: Log AWS configuration (remove in production)
+console.log('🔧 AWS Configuration:', {
+  region: process.env.AWS_REGION,
+  accessKeyId: process.env.AWS_ACCESS_KEY_ID ? '***' : 'NOT_SET',
+  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY ? '***' : 'NOT_SET'
 });
 
 // Generate OTP and send via SNS
 export const sendOtp = async (req, res) => {
   try {
-    const { phone } = req.body;
+    const { phoneNumber } = req.body;
 
     // generate random 6 digit OTP
     const otp = crypto.randomInt(100000, 999999).toString();
@@ -22,7 +36,7 @@ export const sendOtp = async (req, res) => {
 
     // store in DB (overwrite if exists)
     await Otp.findOneAndUpdate(
-      { phone },
+      { phone: phoneNumber },
       { otp, expiresAt },
       { upsert: true, new: true }
     );
@@ -30,7 +44,7 @@ export const sendOtp = async (req, res) => {
     // publish SMS via SNS
     const params = {
       Message: `Your OTP is ${otp}. It will expire in 5 minutes.`,
-      PhoneNumber: phone,
+      PhoneNumber: phoneNumber,
       MessageAttributes: {
         "AWS.SNS.SMS.SMSType": {
           DataType: "String",
