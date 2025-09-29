@@ -13,7 +13,6 @@ import connectDB from './config/db.js';
 import { connectCloudinary } from './config/cloudinary.js';
 import challengeRoutes from './routes/challengeRoutes.js';
 
-
 // --- Security middleware suggestions (uncomment to enable in production) ---
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
@@ -32,6 +31,7 @@ import Scorerouter from './routes/ScoreRoute.js';
 import notificationRoutes from './routes/notificationRoutes.js';
 import followRoutes from './routes/followRoutes.js';
 import postRoute from './routes/postRoute.js';
+import otp from './routes/otpRoutes.js';
 
 
 dotenv.config();
@@ -263,6 +263,7 @@ app.use('/api/notifications', notificationRoutes);
 app.use('/api/follow', followRoutes);
 app.use('/api/messages', messageRoutes);
 app.use('/api/challenges', challengeRoutes);
+app.use('/api/otp', otp);
 
 // Log unhandled requests
 app.use((req, res, next) => {
