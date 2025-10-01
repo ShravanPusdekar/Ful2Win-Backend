@@ -749,31 +749,7 @@ const commentOnPost = async (req, res) => {
   }
 }
 // Export all controller methods
-export {
-  createPost,
-  updatePost,
-  deletePost,
-  likePost,
-  unlikePost,
-  commentOnPost,
-  // Add other methods that are used in routes
-  getPosts,
-  getPostById,
-  getPostsByUser,
-  getSavedPosts,
-  getTrendingPosts,
-  getPostsByTag,
-  addComment,
-  updateComment,
-  deleteComment,
-  likeComment,
-  replyToComment,
-  toggleSavePost,
-  reportPost,
-  getPostComments,
-  getPendingPosts,
-  updatePostStatus
-};
+
 
 // Stub implementations for methods that are used in routes but not yet implemented
 const getPosts = async (req, res) => {
@@ -801,7 +777,11 @@ const getPostById = async (req, res) => {
 
 const getPostsByUser = async (req, res) => {
   try {
-    const posts = await Post.find({ 'author': req.params.userId });
+    const userId = req.params.userId;
+    if (!userId) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    const posts = await Post.find({ 'author': userId });
     res.json(posts);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -991,4 +971,29 @@ const replyToComment = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
+};
+export {
+  createPost,
+  updatePost,
+  deletePost,
+  likePost,
+  unlikePost,
+  commentOnPost,
+  // Add other methods that are used in routes
+  getPosts,
+  getPostById,
+  getPostsByUser,
+  getSavedPosts,
+  getTrendingPosts,
+  getPostsByTag,
+  addComment,
+  updateComment,
+  deleteComment,
+  likeComment,
+  replyToComment,
+  toggleSavePost,
+  reportPost,
+  getPostComments,
+  getPendingPosts,
+  updatePostStatus
 };

@@ -53,8 +53,8 @@ export const sendOtp = async (req, res) => {
       },
     };
 
-    await sns.publish(params).promise();
-
+   const reply = await sns.publish(params).promise();
+  console.log(reply);
     res.json({ success: true, message: "OTP sent successfully" });
   } catch (error) {
     console.error("Error sending OTP:", error);
