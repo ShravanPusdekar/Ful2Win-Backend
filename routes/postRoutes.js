@@ -25,6 +25,8 @@ router.get('/', protect, postController.getPosts);
 // Get a single post by ID
 router.get('/:id', protect, postController.getPostById);
 
+router.get('/users/:userId', protect, postController.getPostsByUser);
+
 // Update a post (also allows optional media update)
 router.put(
   '/:id',

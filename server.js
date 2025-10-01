@@ -12,6 +12,7 @@ import { initSocket } from './config/socket.js';
 import connectDB from './config/db.js';
 import { connectCloudinary } from './config/cloudinary.js';
 import challengeRoutes from './routes/challengeRoutes.js';
+import deviceRoutes from './routes/deviceRoute.js';
 
 // --- Security middleware suggestions (uncomment to enable in production) ---
 import helmet from 'helmet';
@@ -264,6 +265,7 @@ app.use('/api/follow', followRoutes);
 app.use('/api/messages', messageRoutes);
 app.use('/api/challenges', challengeRoutes);
 app.use('/api/otp', otp);
+app.use('/api/device', deviceRoutes);
 
 // Log unhandled requests
 app.use((req, res, next) => {
