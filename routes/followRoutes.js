@@ -1,6 +1,6 @@
 import express from 'express';
 import { protect } from '../middleware/authMiddleware.js';
-import { followUser, checkIfFollowing } from '../controllers/followController.js';
+import { followUser, unfollowUser,unfolloFollower } from '../controllers/followController.js';
 
 const router = express.Router();
 
@@ -19,6 +19,7 @@ router.post('/:userId/follow', followUser);
  * @desc    Check if current user is following another user
  * @access  Private
  */
-router.get('/:userId/is-following', checkIfFollowing);
+router.post('/:userId/unfollow', unfolloFollower);
+router.post('/:userId/unfollow', unfollowUser);
 
 export default router;
