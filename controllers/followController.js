@@ -70,11 +70,11 @@ const unfolloFollower = async (req, res) => {
     if (!currentUser) {
       return res.status(404).json({ message: "Current user not found." });
     }
-    currentUser.followers.pull(userIdToUnfollow);
+    userToUnfollow.followers.pull(currentUserId);
     currentUser.following.pull(userIdToUnfollow);
     await userToUnfollow.save();
     await currentUser.save();
-    return res.status(200).json({ message: "Successfully unfollowed the user." });
+    return res.status(200).json({ message: "Successfully unfollowed the user.", user: userToUnfollow });
   } catch (error) {
     console.error("Error unfollowing user:", error);
     return res.status(500).json({ message: "Internal server error." });
