@@ -171,11 +171,13 @@ const userSchema = new mongoose.Schema({
   followers: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
+    unique: true,
     default: []
   }],
   following: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
+    unique: true,
     default: []
   }],
   posts: [{
