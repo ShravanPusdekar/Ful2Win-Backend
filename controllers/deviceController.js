@@ -8,7 +8,12 @@ const sns = new AWS.SNS();
 // Register device
 export const registerDevice = async (req, res) => {
   try {
-    const { userId, deviceToken } = req.body;
+    const { deviceToken } = req.body;
+    const userId = req.user.id; // assuming user is authenticated and user ID is in req.user
+
+    if (!deviceToken) {
+      return res.status(400).json({ error: "Device token is required" });
+    }
 
     // Create or reuse SNS PlatformEndpoint
     const params = {
