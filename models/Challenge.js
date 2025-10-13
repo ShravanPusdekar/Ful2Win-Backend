@@ -30,10 +30,9 @@ const challengeSchema = new mongoose.Schema({
   },
   
   // Challenge message (optional)
-  message: {
-    type: String,
-    maxlength: 200,
-    default: ''
+  entryFee: {
+    type: Number,
+   
   },
   
   // Challenge result (when completed)
@@ -43,8 +42,8 @@ const challengeSchema = new mongoose.Schema({
       ref: 'User'
     },
     score: {
-      challenger: { type: Number, default: 0 },
-      challenged: { type: Number, default: 0 }
+      challenger: { type: Number, default: -1 },
+      challenged: { type: Number, default: -1 }
     },
     completedAt: Date
   },

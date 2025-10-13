@@ -6,7 +6,8 @@ import {
   rejectChallenge,
   cancelChallenge,
   getUsersForChallenge,
-  getGamesForChallenge
+  getGamesForChallenge,
+  scoreSaved
 } from '../controllers/challengeController.js';
 import { protect } from '../middleware/authMiddleware.js';
 
@@ -25,5 +26,6 @@ router.put('/:id/cancel', cancelChallenge);
 // Data fetching routes for challenge form
 router.get('/users', getUsersForChallenge);
 router.get('/games', getGamesForChallenge);
+router.post('/:id/score', scoreSaved);
 
 export default router; 
