@@ -2,12 +2,13 @@ import Challenge from '../models/Challenge.js';
 import User from '../models/User.js';
 import { Game } from '../models/Game.js';
 
+
 // @desc    Create a new challenge
 // @route   POST /api/challenges
 // @access  Private
 const createChallenge = async (req, res) => {
   try {
-    const { challengedUserId, gameId, message } = req.body;
+    const { challengedUserId, gameId, entryFee } = req.body;
     const challengerId = req.user.id;
 
     // Validate required fields
@@ -64,7 +65,7 @@ const createChallenge = async (req, res) => {
       challenger: challengerId,
       challenged: challengedUserId,
       game: gameId,
-      message: message || ''
+      entryFee: entryFee || 0, // Default to 0 if not provided
     });
 
     // Populate the challenge with user and game details
@@ -372,6 +373,58 @@ const getGamesForChallenge = async (req, res) => {
   }
 };
 
+const scoreSaved = async (req, res) => {
+  try {
+    const challengeId = req.params.id;
+    const { score} = req.body;
+    const userId = req.user.id;
+    const challenge = await Challenge.findById(challengeId);
+    if (!challenge) {
+      return res.status(404).json({ message: "Challenge not found", success: false });
+    }
+    if(userId !== challenge.challenger.toString() && userId !== challenge.challenged.toString()) {
+      return res.status(403).json({ message: "You are not part of this challenge", success: false });
+    }
+    if(challenge.challenger.toString() === userId) {
+      challenge.result.score.challenger = score;
+    }
+    if(challenge.challenged.toString() === userId) {
+      challenge.result.score.challenged = score;
+    }
+    // If both scores are set, determine winner and mark challenge as completed
+    if(challenge.result.score.challenger !== -1 && challenge.result.score.challenged !== -1) {
+      if(challenge.result.score.challenger > challenge.result.score.challenged) {
+        challenge.result.winner = challenge.challenger;
+      } else if(challenge.result.score.challenger < challenge.result.score.challenged) {
+        challenge.result.winner = challenge.challenged;
+      }
+
+      challenge.status = 'completed';
+      await challenge.save();
+
+      res.json({
+        success: true,
+        message: 'Challenge completed successfully',
+        challenge
+      });
+    } else {
+      await challenge.save();
+      res.json({
+        success: true,
+        message: 'Score saved successfully',
+        challenge
+      });
+    }
+  } catch (error) {
+    console.error('Error saving score:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+};
+
 export {
   createChallenge,
   getUserChallenges,
@@ -379,5 +432,6 @@ export {
   rejectChallenge,
   cancelChallenge,
   getUsersForChallenge,
-  getGamesForChallenge
+  getGamesForChallenge,
+  scoreSaved
 }; 
