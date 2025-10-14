@@ -72,7 +72,7 @@ const createChallenge = async (req, res) => {
     await challenge.populate([
       { path: 'challenger', select: 'fullName profilePicture' },
       { path: 'challenged', select: 'fullName profilePicture' },
-      { path: 'game', select: 'displayName name thumbnail' }
+      { path: 'game', select: 'displayName name thumbnail baseUrl iframePath' }
     ]);
 
     res.status(201).json({
@@ -117,7 +117,7 @@ const getUserChallenges = async (req, res) => {
     const challenges = await Challenge.find(query)
       .populate('challenger', 'fullName profilePicture')
       .populate('challenged', 'fullName profilePicture')
-      .populate('game', 'displayName name thumbnail')
+      .populate('game', 'displayName name thumbnail baseUrl iframePath')
       .sort({ createdAt: -1 });
 
     res.json({
@@ -175,7 +175,7 @@ const acceptChallenge = async (req, res) => {
     await challenge.populate([
       { path: 'challenger', select: 'fullName profilePicture' },
       { path: 'challenged', select: 'fullName profilePicture' },
-      { path: 'game', select: 'displayName name thumbnail' }
+      { path: 'game', select: 'displayName name thumbnail baseUrl iframePath' }
     ]);
 
     res.json({
@@ -355,7 +355,7 @@ const getGamesForChallenge = async (req, res) => {
     }
 
     const games = await Game.find(query)
-      .select('displayName name thumbnail type')
+      .select('displayName name thumbnail type baseUrl iframePath')
       .limit(20)
       .sort({ displayName: 1 });
 
