@@ -67,9 +67,9 @@ export const sendOtp = async (req, res) => {
 // Verify OTP
 export const verifyOtp = async (req, res) => {
   try {
-    const { phone, otp } = req.body;
+    const { phoneNumber, otp } = req.body;
 
-    const record = await Otp.findOne({ phone });
+    const record = await Otp.findOne({ phone: phoneNumber });
 
     if (!record) {
       return res.status(400).json({ success: false, message: "No OTP found" });
