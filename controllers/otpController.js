@@ -5,16 +5,12 @@ import crypto from "crypto";
 
 // Configure AWS with explicit settings
 AWS.config.update({
-  region: process.env.AWS_REGION || 'us-east-1',
+  region: process.env.AWS_REGION || 'ap-south-1',
   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
   secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
 });
 
-const sns = new AWS.SNS({
-  region: process.env.AWS_REGION || 'us-east-1',
-  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-});
+const sns = new AWS.SNS({ apiVersion: '2010-03-31' });
 
 // Debug: Log AWS configuration (remove in production)
 console.log('🔧 AWS Configuration:', {
@@ -53,7 +49,13 @@ export const sendOtp = async (req, res) => {
       },
     };
 
-   const reply = await sns.publish(params).promise();
+   const reply = await sns.publish(params, (err, data) => {
+     if (err) {
+       console.error("Error publishing SNS message:", err);
+       throw new Error("SNS publish failed");
+     }
+     console.log("SNS publish success:", data);
+   }).promise();
   console.log(reply);
     res.json({ success: true, message: "OTP sent successfully" });
   } catch (error) {

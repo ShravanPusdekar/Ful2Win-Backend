@@ -379,16 +379,21 @@ const scoreSaved = async (req, res) => {
     const { score} = req.body;
     const userId = req.user.id;
     const challenge = await Challenge.findById(challengeId);
+    const user= await User.findById(userId);
+    const balance= challenge.entryFee;
     if (!challenge) {
       return res.status(404).json({ message: "Challenge not found", success: false });
     }
     if(userId !== challenge.challenger.toString() && userId !== challenge.challenged.toString()) {
       return res.status(403).json({ message: "You are not part of this challenge", success: false });
     }
-    if(challenge.challenger.toString() === userId) {
+    if(challenge.challenger.toString() == userId) {
+      console .log("chalenger score", score);
       challenge.result.score.challenger = score;
+    
     }
-    if(challenge.challenged.toString() === userId) {
+    if(challenge.challenged.toString() == userId) {
+      console .log("challenged score", score);
       challenge.result.score.challenged = score;
     }
     // If both scores are set, determine winner and mark challenge as completed

@@ -230,6 +230,7 @@ const loginUser = async (req, res) => {
     // Extract fields with fallbacks
     const { phoneNumber, phone, password } = requestBody;
     const loginPhoneNumber = phoneNumber || phone;
+    console.log(phoneNumber);
     if (!loginPhoneNumber || !password) {
       return res.status(400).json({ success: false, message: 'phoneNumber (or phone) and password are required' });
     }
