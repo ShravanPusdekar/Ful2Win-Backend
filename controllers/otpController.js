@@ -84,7 +84,7 @@ export const verifyOtp = async (req, res) => {
     }
 
     // OTP verified, delete from DB
-    await Otp.deleteOne({ phone });
+    await Otp.deleteOne({ phoneNumber });
 
     res.json({ success: true, message: "OTP verified successfully" });
   } catch (error) {
