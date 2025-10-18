@@ -13,6 +13,10 @@ import connectDB from './config/db.js';
 import { connectCloudinary } from './config/cloudinary.js';
 import challengeRoutes from './routes/challengeRoutes.js';
 import deviceRoutes from './routes/deviceRoute.js';
+import pushNotificationRoutes from './routes/pushNotificationRoutes.js';
+
+// Firebase initialization
+import { initializeFirebase } from './config/firebase.js';
 
 // --- Security middleware suggestions (uncomment to enable in production) ---
 import helmet from 'helmet';
@@ -266,6 +270,7 @@ app.use('/api/messages', messageRoutes);
 app.use('/api/challenges', challengeRoutes);
 app.use('/api/otp', otp);
 app.use('/api/device', deviceRoutes);
+app.use('/api/push', pushNotificationRoutes);
 
 // Log unhandled requests
 app.use((req, res, next) => {
@@ -345,6 +350,10 @@ const startServer = async () => {
     console.log('🔵 Connecting to Cloudinary...');
     await connectCloudinary();
     console.log('✅ Cloudinary connected');
+
+    console.log('🔵 Initializing Firebase...');
+    initializeFirebase();
+    console.log('✅ Firebase initialized');
 
     const PORT = 5000;
     server.listen(PORT, '0.0.0.0', () => {
