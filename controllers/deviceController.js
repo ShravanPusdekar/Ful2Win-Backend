@@ -16,21 +16,17 @@ export const registerDevice = async (req, res) => {
     }
 
     // Create or reuse SNS PlatformEndpoint
-    const params = {
-      PlatformApplicationArn: process.env.SNS_PLATFORM_ARN, // FCM app registered in SNS
-      Token: deviceToken,
-    };
+    
 
-    const endpoint = await sns.createPlatformEndpoint(params).promise();
-
+    
     // Save in MongoDB
     await Device.findOneAndUpdate(
       { userId },
-      { deviceToken, endpointArn: endpoint.EndpointArn },
+      { deviceToken },
       { upsert: true }
     );
 
-    res.json({ success: true, endpointArn: endpoint.EndpointArn });
+    res.json({ success: true, message: "Device registered successfully" });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: err.message });
