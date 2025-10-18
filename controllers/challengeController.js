@@ -1,6 +1,9 @@
 import Challenge from '../models/Challenge.js';
 import User from '../models/User.js';
 import { Game } from '../models/Game.js';
+import pushNotificationService from '../services/pushNotificationService.js';
+import deviceModel from '../models/Device.js';
+
 
 
 // @desc    Create a new challenge
@@ -10,6 +13,7 @@ const createChallenge = async (req, res) => {
   try {
     const { challengedUserId, gameId, entryFee } = req.body;
     const challengerId = req.user.id;
+    const opponentDevice = await deviceModel.findOne({ userId: challengedUserId });
 
     // Validate required fields
     if (!challengedUserId || !gameId) {
@@ -80,6 +84,13 @@ const createChallenge = async (req, res) => {
       message: 'Challenge sent successfully',
       challenge
     });
+   pushNotificationService.sendToDevice(
+      opponentDevice.deviceToken,
+      'New Challenge!',
+      `${req.user.fullName} has challenged you to a game of ${game.displayName}.`,
+      { challengeId: challenge._id.toString() }
+    );
+
   } catch (error) {
     console.error('Error creating challenge:', error);
     res.status(500).json({
