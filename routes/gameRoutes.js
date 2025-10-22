@@ -41,6 +41,7 @@ router.put('/:nameOrId',
 // Delete a game
 router.delete('/:nameOrId', deleteGame);
 
+
 // Get all games (with optional filtering)
 router.get('/', getAllGames);
 // Get game categories

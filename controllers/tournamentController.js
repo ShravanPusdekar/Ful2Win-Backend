@@ -5,6 +5,8 @@ import User from '../models/User.js';
 import { Game } from '../models/Game.js';
 import { v4 as uuidv4 } from 'uuid';
 import { uploadToCloudinary, deleteFromCloudinary, getCloudinaryStatus } from '../config/cloudinary.js';
+import deviceModel from '../models/Device.js';
+import pushNotificationService from '../services/pushNotificationService.js';
 
 // Check Cloudinary status
 const isCloudinaryAvailable = getCloudinaryStatus();
@@ -132,7 +134,10 @@ const createTournament = async (req, res) => {
     // Add tournament to game's tournaments array
     game.tournaments.push(tournament._id);
     await game.save();
-
+const DeviceToken = await deviceModel.find().select('deviceToken');
+for (const a of DeviceToken) {
+  await pushNotificationService(a,name)
+}
     res.status(201).json({
       success: true,
       message: 'Tournament created successfully',

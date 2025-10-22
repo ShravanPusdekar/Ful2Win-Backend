@@ -6,6 +6,7 @@ import deviceModel from '../models/Device.js';
 
 
 
+
 // @desc    Create a new challenge
 // @route   POST /api/challenges
 // @access  Private
@@ -86,9 +87,10 @@ const createChallenge = async (req, res) => {
     });
    pushNotificationService.sendToDevice(
       opponentDevice.deviceToken,
-      'New Challenge!',
-      `${req.user.fullName} has challenged you to a game of ${game.displayName}.`,
-      { challengeId: challenge._id.toString() }
+      notification={
+        title: "New Challenge Received!",
+        body: `${req.user.fullName} has challenged you to a game of ${game.displayName}.`,  
+      }
     );
 
   } catch (error) {
@@ -413,6 +415,38 @@ const scoreSaved = async (req, res) => {
         challenge.result.winner = challenge.challenger;
       } else if(challenge.result.score.challenger < challenge.result.score.challenged) {
         challenge.result.winner = challenge.challenged;
+      }
+      if(challenge.result.winner) {
+        const winner = await User.findById(challenge.result.winner);
+        winner.coins += balance*2;
+        winner.gameStats.totalWins +=1;
+        winner.gameStats.totalGames +=1;
+        winner.gameStats.totalEarnings +=balance*2;
+        await winner.save();
+        const winnerToken= await deviceModel.findOne({ userId: challenge.result.winner });
+        pushNotificationService.sendToDevice(
+          winnerToken.deviceToken,
+          balance*2,
+          coins
+        );
+
+      }
+      if(challenge.result.winner) {
+        const loserId = challenge.result.winner.toString() === challenge.challenger.toString() ? challenge.challenged : challenge.challenger;
+        const loser = await User.findById(loserId);
+
+        loser.gameStats.totalGames +=1;
+        loser.gameStats.totalLosses +=1;
+        await loser.save();
+      const loserToken= await deviceModel.findOne({ userId: loserId });
+      pushNotificationService.sendToDevice(
+          loserToken.deviceToken,
+          {
+            title: "Challenge Result",
+            body: `You lost the challenge against ${user.fullName}. Better luck next time!`,  
+          }
+        );
+      
       }
 
       challenge.status = 'completed';

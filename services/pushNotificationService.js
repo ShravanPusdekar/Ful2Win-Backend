@@ -190,6 +190,81 @@ class PushNotificationService {
   }
 
   /**
+   * Send new game notification to all devices
+   * @param {Array} tokens - Array of all FCM tokens
+   * @param {Object} gameData - Game information
+   */
+  async sendNewGameNotificationToAll(tokens, gameData) {
+    try {
+      if (!tokens || tokens.length === 0) {
+        console.log('⚠️ No tokens provided for game notification');
+        return { success: false, error: 'No tokens provided' };
+      }
+
+      // FCM has a limit of 500 tokens per multicast
+      const batchSize = 500;
+      const batches = [];
+      
+      for (let i = 0; i < tokens.length; i += batchSize) {
+        batches.push(tokens.slice(i, i + batchSize));
+      }
+
+      const notification = {
+        title: `New Game: ${gameData.displayName || gameData.name} 🎮`,
+        body: `Check out our new game and start playing now!`,
+        imageUrl: gameData.thumbnail || null
+      };
+
+      const data = {
+        type: 'new_game',
+        gameId: gameData._id?.toString() || gameData.id || '',
+        gameName: gameData.name || '',
+        displayName: gameData.displayName || '',
+        baseUrl: gameData.baseUrl || '',
+        iframePath: gameData.iframePath || '',
+        screen: 'games',
+        click_action: 'FLUTTER_NOTIFICATION_CLICK'
+      };
+
+      const allResults = {
+        success: true,
+        totalTokens: tokens.length,
+        totalBatches: batches.length,
+        successCount: 0,
+        failureCount: 0,
+        batches: []
+      };
+
+      // Send to each batch
+      for (let i = 0; i < batches.length; i++) {
+        console.log(`📤 Sending game notification batch ${i + 1}/${batches.length} (${batches[i].length} tokens)`);
+        
+        const batchResult = await this.sendToMultipleDevices(batches[i], notification, data);
+        
+        allResults.batches.push({
+          batchNumber: i + 1,
+          tokenCount: batches[i].length,
+          ...batchResult
+        });
+
+        if (batchResult.success) {
+          allResults.successCount += batchResult.successCount || 0;
+          allResults.failureCount += batchResult.failureCount || 0;
+        } else {
+          allResults.failureCount += batches[i].length;
+        }
+      }
+
+      console.log(`✅ Game notification sent to all devices. Success: ${allResults.successCount}, Failed: ${allResults.failureCount}`);
+      return allResults;
+
+    } catch (error) {
+      console.error('❌ Error sending game notification to all devices:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  /**
    * Subscribe device to topic
    * @param {Array} tokens - Array of FCM tokens
    * @param {string} topic - Topic name

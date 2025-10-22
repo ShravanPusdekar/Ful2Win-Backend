@@ -3,6 +3,8 @@ import Post from '../models/Post.js';
 import User from '../models/User.js';
 import { uploadToCloudinary } from '../config/cloudinary.js';
 import fs from 'fs'; 
+import pushNotificationService from '../services/pushNotificationService.js';
+import deviceModel from '../models/Device.js';
 /**
  * @desc    Create a new post
  * @route   POST /api/posts
@@ -273,6 +275,11 @@ const likePost = async (req, res) => {
     post.likes.push(userId);
     // Save the updated post
     const updatedPost = await post.save();
+    const deviceToken = await deviceModel.findOne({ user: post.author });
+    pushNotificationService.sendToDevice(deviceToken, {
+      title: "you have new Like",
+      body: "Someone liked your post"
+    });
     res.status(200).json({
       message: "Post liked successfully",
       post: updatedPost,
@@ -347,6 +354,7 @@ const addComment = async (req, res) => {
 
     // Add comment to post
     post.comments.push(comment);
+
     await post.save();
 
     // Get the created comment with populated user data
@@ -358,7 +366,11 @@ const addComment = async (req, res) => {
 
     // Update comment count in user's stats
     await User.findByIdAndUpdate(userId, { $inc: { 'stats.commentCount': 1 } });
-
+  const deviceToken = await deviceModel.findOne(post.author);
+  pushNotificationService.sendToDevice(deviceToken,{
+     title: "you have new Like",
+      body: "Someone liked your post"
+  })
     res.status(201).json({
       success: true,
       data: createdComment,

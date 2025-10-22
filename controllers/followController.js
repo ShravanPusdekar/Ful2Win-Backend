@@ -1,4 +1,6 @@
 import User from "../models/User.js";
+import deviceModel from "../models/Device.js";
+import pushNotificationService from "../services/pushNotificationService.js";
 
 
 const followUser = async (req, res) => {
@@ -19,6 +21,16 @@ const followUser = async (req, res) => {
   currentUser.following.push(userIdToFollow);
     await userToFollow.save();
     await currentUser.save();
+
+    const deviceToken = await deviceModel.findOne({ userId: userIdToFollow });
+   pushNotificationService.sendToDevice(
+      deviceToken.deviceToken,
+      {
+        title: "New Follower",
+        body: `${currentUser.fullName} is now following you.`,
+      }
+    );
+
 
     return res.status(200).json({ message: "Successfully followed the user." });
 

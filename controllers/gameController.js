@@ -6,6 +6,8 @@ import path from 'path';
 import { promises as fs } from 'fs';
 import { fileURLToPath } from 'url';
 import mongoose from 'mongoose';
+import deviceModel from '../models/Device.js';
+import pushNotificationService from '../services/pushNotificationService.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -419,6 +421,42 @@ const addGame = async (req, res) => {
 
     // Save the game to database
     const savedGame = await newGame.save();
+
+    // Send push notification to all devices asynchronously (don't wait for it)
+    (async () => {
+      try {
+        console.log('📤 Sending new game notification to all devices...');
+        
+        // Get all unique device tokens
+        const devices = await deviceModel.find({}).select('deviceToken').lean();
+        const tokens = [...new Set(devices.map(d => d.deviceToken).filter(Boolean))];
+        
+        if (tokens.length > 0) {
+          const notificationResult = await pushNotificationService.sendNewGameNotificationToAll(
+            tokens,
+            {
+              _id: savedGame._id,
+              name: savedGame.name,
+              displayName: savedGame.displayName,
+              thumbnail: savedGame.assets?.thumbnail,
+              baseUrl: savedGame.assets?.gameUrl?.baseUrl,
+              iframePath: savedGame.assets?.gameUrl?.iframePath
+            }
+          );
+          
+          console.log('📬 New game notification result:', {
+            totalDevices: tokens.length,
+            successCount: notificationResult.successCount,
+            failureCount: notificationResult.failureCount
+          });
+        } else {
+          console.log('⚠️ No device tokens found, skipping notification');
+        }
+      } catch (notificationError) {
+        console.error('❌ Error sending new game notification:', notificationError);
+        // Don't throw error - notification failure shouldn't affect game creation
+      }
+    })();
 
     res.status(201).json({
       success: true,
@@ -870,6 +908,70 @@ const deleteGame = async (req, res) => {
   }
 };
 
+/**
+ * Send game notification to all devices manually
+ * @route POST /api/games/:gameId/notify-all
+ */
+const notifyAllDevicesAboutGame = async (req, res) => {
+  try {
+    const { gameId } = req.params;
+
+    // Find the game
+    const game = await Game.findById(gameId).lean();
+    
+    if (!game) {
+      return res.status(404).json({
+        success: false,
+        message: 'Game not found'
+      });
+    }
+
+    // Get all unique device tokens
+    const devices = await deviceModel.find({}).select('deviceToken').lean();
+    const tokens = [...new Set(devices.map(d => d.deviceToken).filter(Boolean))];
+    
+    if (tokens.length === 0) {
+      return res.status(200).json({
+        success: true,
+        message: 'No devices to notify',
+        totalDevices: 0
+      });
+    }
+
+    console.log(`📤 Manually sending notification for game: ${game.displayName} to ${tokens.length} devices`);
+
+    // Send notification to all devices
+    const notificationResult = await pushNotificationService.sendNewGameNotificationToAll(
+      tokens,
+      {
+        _id: game._id,
+        name: game.name,
+        displayName: game.displayName,
+        thumbnail: game.assets?.thumbnail,
+        baseUrl: game.assets?.gameUrl?.baseUrl,
+        iframePath: game.assets?.gameUrl?.iframePath
+      }
+    );
+
+    res.status(200).json({
+      success: true,
+      message: 'Notification sent successfully',
+      totalDevices: tokens.length,
+      successCount: notificationResult.successCount,
+      failureCount: notificationResult.failureCount,
+      batches: notificationResult.batches?.length || 0
+    });
+
+  } catch (error) {
+    console.error('Error sending game notification:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to send notification',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+};
+
 export {
   getAllGames,
   getGameInfo,
@@ -881,5 +983,6 @@ export {
   updateGame,
   deleteGame,
   submitScore,
-  createMatch
+  createMatch,
+  notifyAllDevicesAboutGame
 };
