@@ -1,5 +1,6 @@
 import User from "../models/User.js";
 
+
 const followUser = async (req, res) => {
   const userIdToFollow = req.params.userId;
   console.log("User ID to follow:", userIdToFollow);

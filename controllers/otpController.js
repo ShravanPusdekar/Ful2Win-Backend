@@ -10,7 +10,11 @@ AWS.config.update({
   secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
 });
 
-const sns = new AWS.SNS({ apiVersion: '2010-03-31' });
+const sns = new AWS.SNS({
+  region: process.env.AWS_REGION || 'ap-south-1',
+  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+});
 
 // Debug: Log AWS configuration (remove in production)
 console.log('🔧 AWS Configuration:', {
@@ -49,13 +53,7 @@ export const sendOtp = async (req, res) => {
       },
     };
 
-   const reply = await sns.publish(params, (err, data) => {
-     if (err) {
-       console.error("Error publishing SNS message:", err);
-       throw new Error("SNS publish failed");
-     }
-     console.log("SNS publish success:", data);
-   }).promise();
+   const reply = await sns.publish(params).promise();
   console.log(reply);
     res.json({ success: true, message: "OTP sent successfully" });
   } catch (error) {
@@ -74,7 +72,9 @@ export const verifyOtp = async (req, res) => {
     if (!record) {
       return res.status(400).json({ success: false, message: "No OTP found" });
     }
-
+      console.log(record.expiresAt);
+      console.log(new Date());
+      console.log(record.expiresAt < new Date());
     if (record.expiresAt < new Date()) {
       return res.status(400).json({ success: false, message: "OTP expired" });
     }
@@ -84,7 +84,7 @@ export const verifyOtp = async (req, res) => {
     }
 
     // OTP verified, delete from DB
-    await Otp.deleteOne({ phoneNumber });
+    await Otp.deleteOne({ phone: phoneNumber });
 
     res.json({ success: true, message: "OTP verified successfully" });
   } catch (error) {
