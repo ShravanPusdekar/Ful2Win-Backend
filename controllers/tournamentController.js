@@ -134,14 +134,40 @@ const createTournament = async (req, res) => {
     // Add tournament to game's tournaments array
     game.tournaments.push(tournament._id);
     await game.save();
-const DeviceToken = await deviceModel.find().select('deviceToken');
-for (const a of DeviceToken) {
-  await pushNotificationService(a,name)
-}
+    
+    // Send notifications to all devices
+    const DeviceToken = await deviceModel.find().select('deviceToken');
+    let successCount = 0;
+    let invalidTokenCount = 0;
+    
+    for (const device of DeviceToken) {
+      const result = await pushNotificationService.sendTournamentNotification(device.deviceToken, name);
+      
+      if (result.success) {
+        successCount++;
+      } else if (result.invalidToken) {
+        // Remove invalid token from database
+        invalidTokenCount++;
+        try {
+          await deviceModel.deleteOne({ deviceToken: device.deviceToken });
+          console.log(`🗑️ Removed invalid token from database: ${device.deviceToken.substring(0, 20)}...`);
+        } catch (deleteError) {
+          console.error('❌ Error deleting invalid token:', deleteError);
+        }
+      }
+    }
+    
+    console.log(`📱 Notification Summary: ${successCount} sent, ${invalidTokenCount} invalid tokens removed`);
+    
     res.status(201).json({
       success: true,
       message: 'Tournament created successfully',
-      data: tournament
+      data: tournament,
+      notificationStats: {
+        sent: successCount,
+        invalidTokensRemoved: invalidTokenCount,
+        total: DeviceToken.length
+      }
     });
 
   } catch (error) {

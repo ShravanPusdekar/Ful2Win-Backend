@@ -1,5 +1,6 @@
 import AWS from "aws-sdk";
 import Device from "../models/Device.js"; // mongoose model
+import pushNotificationService from "../services/pushNotificationService.js";
 
 AWS.config.update({ region: "ap-south-1" }); // choose your region
 
@@ -25,6 +26,17 @@ export const registerDevice = async (req, res) => {
       { deviceToken },
       { upsert: true }
     );
+    
+    // Send welcome notification
+    const result = await pushNotificationService.sendToDevice(deviceToken, {
+      title: "Device registered",
+      body: "You will receive notifications on this device."
+    });
+    
+    // Note: We don't delete the token here even if invalid, since we just registered it
+    if (result.invalidToken) {
+      console.warn('⚠️ Newly registered token appears invalid:', deviceToken.substring(0, 20) + '...');
+    }
 
     res.json({ success: true, message: "Device registered successfully" });
   } catch (err) {

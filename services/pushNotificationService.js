@@ -79,6 +79,20 @@ class PushNotificationService {
       
     } catch (error) {
       console.error('❌ Error sending message:', error);
+      
+      // Check if it's an invalid token error
+      if (error.code === 'messaging/registration-token-not-registered' || 
+          error.code === 'messaging/invalid-registration-token') {
+        console.warn('⚠️ Invalid or expired FCM token detected:', token.substring(0, 20) + '...');
+        return { 
+          success: false, 
+          error: error.message,
+          invalidToken: true,
+          token: token,
+          errorCode: error.code
+        };
+      }
+      
       return { success: false, error: error.message };
     }
   }

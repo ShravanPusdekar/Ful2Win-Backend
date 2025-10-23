@@ -275,11 +275,26 @@ const likePost = async (req, res) => {
     post.likes.push(userId);
     // Save the updated post
     const updatedPost = await post.save();
+    
+    // Send notification
     const deviceToken = await deviceModel.findOne({ user: post.author });
-    pushNotificationService.sendToDevice(deviceToken, {
-      title: "you have new Like",
-      body: "Someone liked your post"
-    });
+    if (deviceToken?.deviceToken) {
+      const result = await pushNotificationService.sendToDevice(deviceToken.deviceToken, {
+        title: "you have new Like",
+        body: "Someone liked your post"
+      });
+      
+      // Remove invalid token if necessary
+      if (result.invalidToken) {
+        try {
+          await deviceModel.deleteOne({ _id: deviceToken._id });
+          console.log(`🗑️ Removed invalid token for user ${post.author}`);
+        } catch (deleteError) {
+          console.error('❌ Error deleting invalid token:', deleteError);
+        }
+      }
+    }
+    
     res.status(200).json({
       message: "Post liked successfully",
       post: updatedPost,
@@ -366,11 +381,26 @@ const addComment = async (req, res) => {
 
     // Update comment count in user's stats
     await User.findByIdAndUpdate(userId, { $inc: { 'stats.commentCount': 1 } });
-  const deviceToken = await deviceModel.findOne(post.author);
-  pushNotificationService.sendToDevice(deviceToken,{
-     title: "you have new Like",
-      body: "Someone liked your post"
-  })
+    
+    // Send notification
+    const deviceToken = await deviceModel.findOne({ user: post.author });
+    if (deviceToken?.deviceToken) {
+      const result = await pushNotificationService.sendToDevice(deviceToken.deviceToken, {
+        title: "you have new Comment",
+        body: "Someone commented on your post"
+      });
+      
+      // Remove invalid token if necessary
+      if (result.invalidToken) {
+        try {
+          await deviceModel.deleteOne({ _id: deviceToken._id });
+          console.log(`🗑️ Removed invalid token for user ${post.author}`);
+        } catch (deleteError) {
+          console.error('❌ Error deleting invalid token:', deleteError);
+        }
+      }
+    }
+    
     res.status(201).json({
       success: true,
       data: createdComment,

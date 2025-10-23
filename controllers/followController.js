@@ -22,15 +22,27 @@ const followUser = async (req, res) => {
     await userToFollow.save();
     await currentUser.save();
 
-    const deviceToken = await deviceModel.findOne({ userId: userIdToFollow });
-   pushNotificationService.sendToDevice(
-      deviceToken.deviceToken,
-      {
-        title: "New Follower",
-        body: `${currentUser.fullName} is now following you.`,
+    // Send notification
+    const deviceToken = await deviceModel.findOne({ user: userIdToFollow });
+    if (deviceToken?.deviceToken) {
+      const result = await pushNotificationService.sendToDevice(
+        deviceToken.deviceToken,
+        {
+          title: "New Follower",
+          body: `${currentUser.fullName} is now following you.`,
+        }
+      );
+      
+      // Remove invalid token if necessary
+      if (result.invalidToken) {
+        try {
+          await deviceModel.deleteOne({ _id: deviceToken._id });
+          console.log(`🗑️ Removed invalid token for user ${userIdToFollow}`);
+        } catch (deleteError) {
+          console.error('❌ Error deleting invalid token:', deleteError);
+        }
       }
-    );
-
+    }
 
     return res.status(200).json({ message: "Successfully followed the user." });
 
