@@ -23,7 +23,7 @@ const createChallenge = async (req, res) => {
         message: 'Challenged user and game are required'
       });
     }
-
+const challenger = await User.findById(challengerId);
     // Check if challenged user exists
     const challengedUser = await User.findById(challengedUserId);
     if (!challengedUser) {
@@ -79,19 +79,19 @@ const createChallenge = async (req, res) => {
       { path: 'challenged', select: 'fullName profilePicture' },
       { path: 'game', select: 'displayName name thumbnail baseUrl iframePath' }
     ]);
-
+ pushNotificationService.sendToDevice(
+      opponentDevice.deviceToken,
+      {
+        title: "New Challenge Received!",
+        body: `${challenger.fullName} has challenged you to a game of ${game.displayName}.`,
+      }
+    );
     res.status(201).json({
       success: true,
       message: 'Challenge sent successfully',
       challenge
     });
-   pushNotificationService.sendToDevice(
-      opponentDevice.deviceToken,
-      notification={
-        title: "New Challenge Received!",
-        body: `${req.user.fullName} has challenged you to a game of ${game.displayName}.`,  
-      }
-    );
+  
 
   } catch (error) {
     console.error('Error creating challenge:', error);
@@ -424,10 +424,10 @@ const scoreSaved = async (req, res) => {
         winner.gameStats.totalEarnings +=balance*2;
         await winner.save();
         const winnerToken= await deviceModel.findOne({ userId: challenge.result.winner });
-        pushNotificationService.sendToDevice(
+        pushNotificationService.sendRewardNotification(
           winnerToken.deviceToken,
           balance*2,
-          coins
+          
         );
 
       }

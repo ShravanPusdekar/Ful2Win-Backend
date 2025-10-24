@@ -420,7 +420,8 @@ const addGame = async (req, res) => {
     });
 
     // Save the game to database
-    const savedGame = await newGame.save();
+      const savedGame = await newGame.save();
+
 
     // Send push notification to all devices asynchronously (don't wait for it)
     (async () => {
@@ -457,7 +458,6 @@ const addGame = async (req, res) => {
         // Don't throw error - notification failure shouldn't affect game creation
       }
     })();
-
     res.status(201).json({
       success: true,
       data: {
